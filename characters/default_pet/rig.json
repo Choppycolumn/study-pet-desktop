@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "canvas": { "width": 512, "height": 768 },
+  "root": "root",
+  "nodes": [
+    { "id": "root", "parent": null, "position": [256, 735], "pivot": [0, 0], "layer": 0 },
+    { "id": "body", "parent": "root", "sprite": "torso", "position": [0, -335], "pivot": [200, 220], "scale": [1, 1], "layer": 30 },
+
+    { "id": "left_upper_leg", "parent": "body", "sprite": "left_upper_leg", "position": [-55, 105], "pivot": [95, 35], "scale": [0.5, 0.5], "layer": 10 },
+    { "id": "left_lower_leg", "parent": "left_upper_leg", "sprite": "left_lower_leg", "position": [0, 130], "pivot": [85, 35], "scale": [0.5, 0.5], "layer": 11 },
+    { "id": "left_foot", "parent": "left_lower_leg", "sprite": "left_foot", "position": [-10, 125], "pivot": [115, 45], "scale": [0.5, 0.5], "layer": 12 },
+    { "id": "right_upper_leg", "parent": "body", "sprite": "right_upper_leg", "position": [55, 105], "pivot": [95, 35], "scale": [0.5, 0.5], "layer": 13 },
+    { "id": "right_lower_leg", "parent": "right_upper_leg", "sprite": "right_lower_leg", "position": [0, 130], "pivot": [85, 35], "scale": [0.5, 0.5], "layer": 14 },
+    { "id": "right_foot", "parent": "right_lower_leg", "sprite": "right_foot", "position": [10, 125], "pivot": [115, 45], "scale": [0.5, 0.5], "layer": 15 },
+
+    { "id": "hair_back", "parent": "body", "sprite": "hair_back", "position": [0, -195], "pivot": [200, 200], "scale": [0.5, 0.5], "layer": 20 },
+    { "id": "head", "parent": "body", "sprite": "head", "position": [0, -195], "pivot": [170, 170], "scale": [0.5, 0.5], "layer": 31 },
+    { "id": "face_base", "parent": "head", "sprite": "face_base", "position": [0, 8], "pivot": [150, 140], "scale": [1, 1], "layer": 32 },
+    { "id": "eyes_open", "parent": "head", "sprite": "eyes_open", "position": [0, 6], "pivot": [150, 50], "scale": [1, 1], "layer": 40, "visible": true },
+    { "id": "eyes_closed", "parent": "head", "sprite": "eyes_closed", "position": [0, 6], "pivot": [150, 50], "scale": [1, 1], "layer": 41, "visible": false },
+    { "id": "mouth_normal", "parent": "head", "sprite": "mouth_normal", "position": [0, 62], "pivot": [80, 50], "scale": [1, 1], "layer": 42, "visible": true },
+    { "id": "mouth_smile", "parent": "head", "sprite": "mouth_smile", "position": [0, 62], "pivot": [80, 50], "scale": [1, 1], "layer": 43, "visible": false },
+    { "id": "mouth_angry", "parent": "head", "sprite": "mouth_angry", "position": [0, 62], "pivot": [80, 50], "scale": [1, 1], "layer": 44, "visible": false },
+    { "id": "mouth_sleep", "parent": "head", "sprite": "mouth_sleep", "position": [0, 62], "pivot": [80, 50], "scale": [1, 1], "layer": 45, "visible": false },
+    { "id": "hair_front", "parent": "head", "sprite": "hair_front", "position": [0, -25], "pivot": [200, 140], "scale": [1, 1], "layer": 50 },
+
+    { "id": "left_upper_arm", "parent": "body", "sprite": "left_upper_arm", "position": [-115, -45], "pivot": [90, 40], "scale": [0.5, 0.5], "layer": 34 },
+    { "id": "left_lower_arm", "parent": "left_upper_arm", "sprite": "left_lower_arm", "position": [0, 115], "pivot": [80, 35], "scale": [0.5, 0.5], "layer": 35 },
+    { "id": "left_hand", "parent": "left_lower_arm", "sprite": "left_hand", "position": [0, 110], "pivot": [70, 35], "scale": [0.5, 0.5], "layer": 36 },
+    { "id": "right_upper_arm", "parent": "body", "sprite": "right_upper_arm", "position": [115, -45], "pivot": [90, 40], "scale": [0.5, 0.5], "layer": 37 },
+    { "id": "right_lower_arm", "parent": "right_upper_arm", "sprite": "right_lower_arm", "position": [0, 115], "pivot": [80, 35], "scale": [0.5, 0.5], "layer": 38 },
+    { "id": "right_hand", "parent": "right_lower_arm", "sprite": "right_hand", "position": [0, 110], "pivot": [70, 35], "scale": [0.5, 0.5], "layer": 39 },
+
+    { "id": "prop_book", "parent": "body", "sprite": "prop_book", "position": [0, 70], "pivot": [260, 180], "scale": [0.45, 0.45], "layer": 60, "visible": false },
+    { "id": "prop_laptop", "parent": "body", "sprite": "prop_laptop", "position": [0, 95], "pivot": [280, 180], "scale": [0.42, 0.42], "layer": 61, "visible": false },
+    { "id": "effect_warning", "parent": "head", "sprite": "effect_warning", "position": [145, -125], "pivot": [150, 150], "scale": [0.42, 0.42], "layer": 70, "visible": false },
+    { "id": "effect_heart", "parent": "head", "sprite": "effect_heart", "position": [145, -105], "pivot": [150, 150], "scale": [0.4, 0.4], "layer": 71, "visible": false }
+  ]
+}

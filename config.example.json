@@ -1,0 +1,23 @@
+{
+  "timezone": "Asia/Shanghai",
+  "deviceId": "windows-main",
+  "serverUrl": "http://127.0.0.1:8080",
+  "apiToken": "change-me",
+  "characterId": "default_pet",
+  "targetStudyMinutes": 180,
+  "entertainmentLimitMinutes": 30,
+  "idleThresholdSeconds": 180,
+  "sampleIntervalSeconds": 2,
+  "syncIntervalSeconds": 60,
+  "reminderCooldownMinutes": 20,
+  "emergencyPauseMinutes": 30,
+  "strongModeEnabled": true,
+  "reminderTone": "strict",
+  "studyDomains": ["chat.openai.com", "github.com", "wikipedia.org"],
+  "entertainmentDomains": ["bilibili.com", "youtube.com", "douyin.com"],
+  "studyKeywords": ["课程", "学习", "作业", "lecture", "tutorial", "PPT", "PDF"],
+  "entertainmentKeywords": ["游戏", "番剧", "直播", "短视频"],
+  "socialDomains": ["weibo.com", "x.com", "twitter.com"],
+  "toolProcesses": ["code.exe", "pycharm64.exe", "idea64.exe", "word.exe", "excel.exe", "powerpnt.exe"],
+  "entertainmentProcesses": ["steam.exe", "epicgameslauncher.exe", "cloudmusic.exe", "qqgame.exe"]
+}

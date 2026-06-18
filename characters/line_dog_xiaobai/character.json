@@ -1,0 +1,21 @@
+{
+  "id": "line_dog_xiaobai",
+  "displayName": "小白",
+  "tone": "plain_strict",
+  "asset": "",
+  "animations": {
+    "idle": { "asset": "", "fps": 10, "loop": true, "scale": 0.98, "bob": 3, "breath": 0.018, "shake": 0 },
+    "study": { "asset": "", "fps": 10, "loop": true, "scale": 1.0, "bob": 2, "breath": 0.012, "shake": 0, "tint": "#16a34a1f" },
+    "entertainment": { "asset": "", "fps": 12, "loop": true, "scale": 1.0, "bob": 4, "breath": 0.02, "shake": 1, "tint": "#f9731622" },
+    "warn": { "asset": "", "fps": 14, "loop": true, "scale": 1.01, "bob": 4, "breath": 0.025, "shake": 4, "tint": "#f59e0b33" },
+    "strong": { "asset": "", "fps": 16, "loop": true, "scale": 1.02, "bob": 3, "breath": 0.028, "shake": 8, "tint": "#ef444444" },
+    "paused": { "asset": "", "fps": 8, "loop": true, "scale": 0.94, "bob": 1, "breath": 0.008, "shake": 0, "tint": "#64748b33" }
+  },
+  "bubbleLines": {
+    "default": ["小白在岗，开始记录。"],
+    "study": ["这段算学习，继续。"],
+    "entertainment": ["娱乐够久了，回来做题。"],
+    "strong": ["先别划走，开始学习。"]
+  },
+  "notes": "Placeholder profile only. Put legally usable character assets in this folder before enabling exact visuals."
+}

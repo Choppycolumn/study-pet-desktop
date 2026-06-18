@@ -1,0 +1,21 @@
+{
+  "id": "catgirl",
+  "displayName": "猫娘",
+  "tone": "warm_strict",
+  "asset": "../../assets/pet.png",
+  "animations": {
+    "idle": { "asset": "", "fps": 12, "loop": true, "scale": 1.0, "bob": 5, "breath": 0.028, "shake": 0 },
+    "study": { "asset": "", "fps": 12, "loop": true, "scale": 1.0, "bob": 3, "breath": 0.018, "shake": 0, "tint": "#16a34a22" },
+    "entertainment": { "asset": "", "fps": 14, "loop": true, "scale": 1.01, "bob": 6, "breath": 0.032, "shake": 1, "tint": "#f9731622" },
+    "warn": { "asset": "", "fps": 16, "loop": true, "scale": 1.03, "bob": 7, "breath": 0.038, "shake": 3, "tint": "#f59e0b33" },
+    "strong": { "asset": "", "fps": 18, "loop": true, "scale": 1.05, "bob": 5, "breath": 0.045, "shake": 7, "tint": "#ef444444" },
+    "paused": { "asset": "", "fps": 8, "loop": true, "scale": 0.96, "bob": 1.5, "breath": 0.01, "shake": 0, "tint": "#64748b33" }
+  },
+  "bubbleLines": {
+    "default": ["今天也要乖乖学习喵。"],
+    "study": ["很好，保持这个节奏。"],
+    "entertainment": ["娱乐时间在涨哦，差不多该收心了。"],
+    "strong": ["暂停一下，先点开始学习。"]
+  },
+  "notes": "MVP placeholder. Add your own png/gif asset and set asset when ready."
+}

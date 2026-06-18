@@ -1,0 +1,21 @@
+{
+  "id": "line_dog_xiaojiemao",
+  "displayName": "小鸡毛",
+  "tone": "playful_strict",
+  "asset": "",
+  "animations": {
+    "idle": { "asset": "", "fps": 11, "loop": true, "scale": 0.98, "bob": 6, "breath": 0.022, "shake": 0 },
+    "study": { "asset": "", "fps": 11, "loop": true, "scale": 1.0, "bob": 4, "breath": 0.016, "shake": 0, "tint": "#16a34a1f" },
+    "entertainment": { "asset": "", "fps": 14, "loop": true, "scale": 1.02, "bob": 8, "breath": 0.034, "shake": 2, "tint": "#f9731622" },
+    "warn": { "asset": "", "fps": 16, "loop": true, "scale": 1.04, "bob": 8, "breath": 0.04, "shake": 5, "tint": "#f59e0b33" },
+    "strong": { "asset": "", "fps": 18, "loop": true, "scale": 1.06, "bob": 7, "breath": 0.048, "shake": 9, "tint": "#ef444444" },
+    "paused": { "asset": "", "fps": 8, "loop": true, "scale": 0.93, "bob": 2, "breath": 0.01, "shake": 0, "tint": "#64748b33" }
+  },
+  "bubbleLines": {
+    "default": ["小鸡毛盯着今日进度。"],
+    "study": ["不错，脑子开始热身了。"],
+    "entertainment": ["短视频不能替你上岸。"],
+    "strong": ["倒计时开始，去学习。"]
+  },
+  "notes": "Placeholder profile only. Put legally usable character assets in this folder before enabling exact visuals."
+}
