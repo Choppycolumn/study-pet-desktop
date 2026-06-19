@@ -122,8 +122,325 @@ class PetStorage:
                   created_at TEXT NOT NULL,
                   updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS pet_status (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  character_id TEXT NOT NULL UNIQUE,
+                  mood INTEGER NOT NULL DEFAULT 60 CHECK(mood BETWEEN 0 AND 100),
+                  affection INTEGER NOT NULL DEFAULT 50 CHECK(affection BETWEEN 0 AND 100),
+                  hunger INTEGER NOT NULL DEFAULT 20 CHECK(hunger BETWEEN 0 AND 100),
+                  energy INTEGER NOT NULL DEFAULT 80 CHECK(energy BETWEEN 0 AND 100),
+                  discipline INTEGER NOT NULL DEFAULT 50 CHECK(discipline BETWEEN 0 AND 100),
+                  created_at TEXT NOT NULL,
+                  updated_at TEXT NOT NULL,
+                  last_decay_at TEXT NOT NULL,
+                  last_fed_at TEXT,
+                  last_played_at TEXT,
+                  last_gift_at TEXT
+                );
+                CREATE TABLE IF NOT EXISTS pet_interaction_events (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  character_id TEXT NOT NULL,
+                  action TEXT NOT NULL,
+                  event_type TEXT,
+                  mood_delta INTEGER NOT NULL DEFAULT 0,
+                  affection_delta INTEGER NOT NULL DEFAULT 0,
+                  hunger_delta INTEGER NOT NULL DEFAULT 0,
+                  energy_delta INTEGER NOT NULL DEFAULT 0,
+                  discipline_delta INTEGER NOT NULL DEFAULT 0,
+                  mood INTEGER NOT NULL CHECK(mood BETWEEN 0 AND 100),
+                  affection INTEGER NOT NULL CHECK(affection BETWEEN 0 AND 100),
+                  hunger INTEGER NOT NULL CHECK(hunger BETWEEN 0 AND 100),
+                  energy INTEGER NOT NULL CHECK(energy BETWEEN 0 AND 100),
+                  discipline INTEGER NOT NULL CHECK(discipline BETWEEN 0 AND 100),
+                  metadata_json TEXT NOT NULL DEFAULT '{}',
+                  created_at TEXT NOT NULL,
+                  FOREIGN KEY(character_id) REFERENCES pet_status(character_id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_pet_interaction_character_created
+                  ON pet_interaction_events(character_id, created_at DESC, id DESC);
                 """
             )
+            self._migrate_pet_care_schema(conn)
+
+    @staticmethod
+    def _migrate_pet_care_schema(conn: sqlite3.Connection) -> None:
+        """Add care columns to databases created by earlier application versions."""
+        status_columns = {row["name"] for row in conn.execute("PRAGMA table_info(pet_status);")}
+        if "id" not in status_columns:
+            conn.execute("ALTER TABLE pet_status ADD COLUMN id INTEGER;")
+            conn.execute("UPDATE pet_status SET id = rowid WHERE id IS NULL;")
+        conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_pet_status_id ON pet_status(id);")
+        conn.execute(
+            """
+            CREATE TRIGGER IF NOT EXISTS trg_pet_status_fill_id
+            AFTER INSERT ON pet_status
+            WHEN NEW.id IS NULL
+            BEGIN
+              UPDATE pet_status SET id = NEW.rowid WHERE rowid = NEW.rowid;
+            END;
+            """
+        )
+        for name, declaration in (
+            ("last_decay_at", "TEXT"),
+            ("last_fed_at", "TEXT"),
+            ("last_played_at", "TEXT"),
+            ("last_gift_at", "TEXT"),
+        ):
+            if name not in status_columns:
+                conn.execute(f"ALTER TABLE pet_status ADD COLUMN {name} {declaration};")
+
+        event_columns = {row["name"] for row in conn.execute("PRAGMA table_info(pet_interaction_events);")}
+        if "action" not in event_columns:
+            conn.execute("ALTER TABLE pet_interaction_events ADD COLUMN action TEXT;")
+        if "event_type" not in event_columns:
+            conn.execute("ALTER TABLE pet_interaction_events ADD COLUMN event_type TEXT;")
+        conn.execute(
+            """
+            UPDATE pet_interaction_events
+            SET action = COALESCE(NULLIF(action, ''), event_type),
+                event_type = COALESCE(NULLIF(event_type, ''), action);
+            """
+        )
+        conn.execute("UPDATE pet_status SET last_decay_at = COALESCE(last_decay_at, updated_at, created_at);")
+        for column, action in (
+            ("last_fed_at", "feed"),
+            ("last_played_at", "play"),
+            ("last_gift_at", "gift"),
+        ):
+            conn.execute(
+                f"""
+                UPDATE pet_status
+                SET {column} = COALESCE(
+                  {column},
+                  (SELECT MAX(created_at) FROM pet_interaction_events
+                   WHERE pet_interaction_events.character_id = pet_status.character_id
+                     AND action = ?)
+                );
+                """,
+                (action,),
+            )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pet_interaction_action_cooldown
+            ON pet_interaction_events(character_id, action, created_at DESC, id DESC);
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pet_interaction_cooldown
+            ON pet_interaction_events(character_id, event_type, created_at DESC, id DESC);
+            """
+        )
+
+    @staticmethod
+    def _pet_status_dict(row: sqlite3.Row) -> dict:
+        return {
+            "id": int(row["id"] or row["rowid"]) if "rowid" in row.keys() else int(row["id"] or 0),
+            "character_id": str(row["character_id"]),
+            "mood": int(row["mood"]),
+            "affection": int(row["affection"]),
+            "hunger": int(row["hunger"]),
+            "energy": int(row["energy"]),
+            "discipline": int(row["discipline"]),
+            "created_at": str(row["created_at"]),
+            "updated_at": str(row["updated_at"]),
+            "last_decay_at": str(row["last_decay_at"]),
+            "last_fed_at": str(row["last_fed_at"]) if row["last_fed_at"] is not None else None,
+            "last_played_at": str(row["last_played_at"]) if row["last_played_at"] is not None else None,
+            "last_gift_at": str(row["last_gift_at"]) if row["last_gift_at"] is not None else None,
+        }
+
+    def get_pet_status(self, character_id: str, initial: dict | None = None, now: str | None = None) -> dict:
+        """Load a character's status, creating its independent row when needed."""
+        character_id = str(character_id).strip()
+        if not character_id:
+            raise ValueError("character_id must not be empty")
+        values = {"mood": 60, "affection": 50, "hunger": 20, "energy": 80, "discipline": 50}
+        if initial:
+            values.update({key: max(0, min(100, int(initial[key]))) for key in values if key in initial})
+        timestamp = now or self.utc_now()
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO pet_status
+                (character_id, mood, affection, hunger, energy, discipline, created_at, updated_at, last_decay_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (
+                    character_id,
+                    values["mood"],
+                    values["affection"],
+                    values["hunger"],
+                    values["energy"],
+                    values["discipline"],
+                    timestamp,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+            row = conn.execute("SELECT * FROM pet_status WHERE character_id = ?;", (character_id,)).fetchone()
+        if row is None:  # pragma: no cover - guarded by the insert above
+            raise RuntimeError("failed to create pet status")
+        return self._pet_status_dict(row)
+
+    def apply_pet_interaction(
+        self,
+        character_id: str,
+        action: str,
+        deltas: dict[str, int],
+        *,
+        occurred_at: str,
+        cooldown_seconds: float = 0,
+        metadata: dict | None = None,
+        last_decay_at: str | None = None,
+    ) -> tuple[dict, bool, float]:
+        """Atomically update status and append its event; return status, applied, cooldown left."""
+        from datetime import datetime
+
+        character_id = str(character_id).strip()
+        action = str(action).strip()
+        if not character_id or not action:
+            raise ValueError("character_id and action must not be empty")
+        metric_names = ("mood", "affection", "hunger", "energy", "discipline")
+        normalized_deltas = {name: int(deltas.get(name, 0)) for name in metric_names}
+
+        def parse_timestamp(value: str) -> datetime:
+            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+        with self.connection() as conn:
+            conn.execute("BEGIN IMMEDIATE;")
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO pet_status
+                (character_id, mood, affection, hunger, energy, discipline, created_at, updated_at, last_decay_at)
+                VALUES (?, 60, 50, 20, 80, 50, ?, ?, ?);
+                """,
+                (character_id, occurred_at, occurred_at, occurred_at),
+            )
+            row = conn.execute("SELECT * FROM pet_status WHERE character_id = ?;", (character_id,)).fetchone()
+            if row is None:  # pragma: no cover - guarded by the insert above
+                raise RuntimeError("failed to load pet status")
+
+            cooldown_left = 0.0
+            if cooldown_seconds > 0:
+                latest = conn.execute(
+                    """
+                    SELECT created_at FROM pet_interaction_events
+                    WHERE character_id = ? AND action = ?
+                    ORDER BY created_at DESC, id DESC LIMIT 1;
+                    """,
+                    (character_id, action),
+                ).fetchone()
+                if latest is not None:
+                    elapsed = (parse_timestamp(occurred_at) - parse_timestamp(str(latest["created_at"]))).total_seconds()
+                    cooldown_left = max(0.0, float(cooldown_seconds) - max(0.0, elapsed))
+                    if cooldown_left > 0:
+                        return self._pet_status_dict(row), False, cooldown_left
+
+            updated = {
+                name: max(0, min(100, int(row[name]) + normalized_deltas[name]))
+                for name in metric_names
+            }
+            decay_timestamp = last_decay_at or str(row["last_decay_at"])
+            conn.execute(
+                """
+                UPDATE pet_status
+                SET mood = ?, affection = ?, hunger = ?, energy = ?, discipline = ?,
+                    updated_at = ?, last_decay_at = ?,
+                    last_fed_at = CASE WHEN ? = 'feed' THEN ? ELSE last_fed_at END,
+                    last_played_at = CASE WHEN ? = 'play' THEN ? ELSE last_played_at END,
+                    last_gift_at = CASE WHEN ? = 'gift' THEN ? ELSE last_gift_at END
+                WHERE character_id = ?;
+                """,
+                (
+                    updated["mood"],
+                    updated["affection"],
+                    updated["hunger"],
+                    updated["energy"],
+                    updated["discipline"],
+                    occurred_at,
+                    decay_timestamp,
+                    action,
+                    occurred_at,
+                    action,
+                    occurred_at,
+                    action,
+                    occurred_at,
+                    character_id,
+                ),
+            )
+            conn.execute(
+                """
+                INSERT INTO pet_interaction_events
+                (character_id, action, event_type, mood_delta, affection_delta, hunger_delta, energy_delta,
+                 discipline_delta, mood, affection, hunger, energy, discipline, metadata_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (
+                    character_id,
+                    action,
+                    action,
+                    normalized_deltas["mood"],
+                    normalized_deltas["affection"],
+                    normalized_deltas["hunger"],
+                    normalized_deltas["energy"],
+                    normalized_deltas["discipline"],
+                    updated["mood"],
+                    updated["affection"],
+                    updated["hunger"],
+                    updated["energy"],
+                    updated["discipline"],
+                    json.dumps(metadata or {}, ensure_ascii=False, sort_keys=True),
+                    occurred_at,
+                ),
+            )
+            updated_row = conn.execute("SELECT * FROM pet_status WHERE character_id = ?;", (character_id,)).fetchone()
+        if updated_row is None:  # pragma: no cover - guarded by the transaction
+            raise RuntimeError("failed to update pet status")
+        return self._pet_status_dict(updated_row), True, 0.0
+
+    def get_recent_pet_interactions(
+        self,
+        character_id: str | None = None,
+        limit: int = 20,
+        action: str | None = None,
+        *,
+        event_type: str | None = None,
+    ) -> list[dict]:
+        """Return newest interaction events as JSON-friendly dictionaries."""
+        clauses: list[str] = []
+        parameters: list[object] = []
+        if character_id is not None:
+            clauses.append("character_id = ?")
+            parameters.append(str(character_id))
+        selected_action = action if action is not None else event_type
+        if selected_action is not None:
+            clauses.append("action = ?")
+            parameters.append(str(selected_action))
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        parameters.append(max(0, int(limit)))
+        with self.connection() as conn:
+            rows = conn.execute(
+                f"""
+                SELECT * FROM pet_interaction_events
+                {where}
+                ORDER BY created_at DESC, id DESC
+                LIMIT ?;
+                """,
+                parameters,
+            ).fetchall()
+        events: list[dict] = []
+        for row in rows:
+            event = dict(row)
+            try:
+                event["metadata"] = json.loads(event.pop("metadata_json"))
+            except (TypeError, json.JSONDecodeError):
+                event["metadata"] = {}
+                event.pop("metadata_json", None)
+            events.append(event)
+        return events
+
+    recent_pet_interactions = get_recent_pet_interactions
 
     def ensure_day(self, date: str | None = None) -> None:
         date = date or self.today()

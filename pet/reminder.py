@@ -22,8 +22,9 @@ class ReminderEngine:
         self.last_strong_reminder_at = 0.0
         self.paused_until = 0.0
 
-    def emergency_pause(self) -> None:
-        self.paused_until = time.time() + self.settings.emergency_pause_minutes * 60
+    def emergency_pause(self, minutes: int | None = None) -> None:
+        duration = self.settings.emergency_pause_minutes if minutes is None else max(1, int(minutes))
+        self.paused_until = time.time() + duration * 60
 
     def is_paused(self) -> bool:
         return time.time() < self.paused_until

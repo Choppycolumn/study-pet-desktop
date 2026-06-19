@@ -24,6 +24,24 @@ from pet.character import CharacterPackageLoader  # noqa: E402
 from pet.renderers.webview_renderer import WebViewRenderer  # noqa: E402
 
 
+CORE_ACTIONS = [
+    "idle_normal",
+    "idle_blink",
+    "idle_breathe",
+    "idle_look_left",
+    "idle_look_right",
+    "idle_stretch",
+    "study_normal",
+    "warning_soft",
+    "warning_strong",
+    "angry_soft",
+    "happy",
+    "sleep",
+    "click",
+    "dragging",
+]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", type=Path, default=ROOT / "characters" / "default_pet")
@@ -72,7 +90,7 @@ def main() -> int:
 
     def begin_checks() -> None:
         if not args.screenshot:
-            inspect_state("idle", ["study", "warning", "angry"])
+            inspect_state(CORE_ACTIONS[0], CORE_ACTIONS[1:])
             return
 
         def save_canvas(value: object) -> None:
@@ -83,7 +101,7 @@ def main() -> int:
             else:
                 args.screenshot.parent.mkdir(parents=True, exist_ok=True)
                 args.screenshot.write_bytes(base64.b64decode(data_url[len(prefix):]))
-            inspect_state("idle", ["study", "warning", "angry"])
+            inspect_state(CORE_ACTIONS[0], CORE_ACTIONS[1:])
 
         renderer.view.page().runJavaScript(
             "document.getElementById('pet-canvas').toDataURL('image/png')",
