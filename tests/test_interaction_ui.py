@@ -64,10 +64,16 @@ class InteractionUiTests(unittest.TestCase):
         action = panel.action_name.findData("sync_error")
         panel.action_name.setCurrentIndex(action)
         self.assertIn("fallback", panel.fallback.text())
+        native_category = panel.action_category.findData("__native__")
+        panel.action_category.setCurrentIndex(native_category)
+        native_actions = {panel.action_name.itemData(index) for index in range(panel.action_name.count())}
+        self.assertEqual(native_actions, set(profiles["line_dog_xiaobai"].states))
         emitted: list[tuple[str, str]] = []
         panel.preview_requested.connect(lambda character, state: emitted.append((character, state)))
+        sync_action = panel.action_name.findData("idle")
+        panel.action_name.setCurrentIndex(sync_action)
         panel._preview_action()
-        self.assertEqual(emitted, [("line_dog_xiaobai", "sync_error")])
+        self.assertEqual(emitted, [("line_dog_xiaobai", "idle")])
         panel.close()
 
     def test_pet_window_builds_all_menu_levels_and_persists_care_interaction(self) -> None:

@@ -153,6 +153,7 @@ class CharacterPanel(QWidget):
         self.action_category = QComboBox(self)
         for category in ACTION_CATEGORIES:
             self.action_category.addItem(category, category)
+        self.action_category.addItem("角色原生动作", "__native__")
         self.action_name = QComboBox(self)
         self.action_category.currentIndexChanged.connect(self._load_actions)
         self.fallback = QLabel(self)
@@ -249,12 +250,14 @@ class CharacterPanel(QWidget):
             f"支持动作：{len(supported)}　缺失动作：{missing}\n"
             f"{getattr(profile, 'description', '')}"
         )
-        self._describe_fallback()
+        self._load_actions()
 
     def _load_actions(self) -> None:
         category = str(self.action_category.currentData() or "idle")
         self.action_name.clear()
-        for action in ACTION_CATEGORIES.get(category, ()):
+        profile = self._selected_profile()
+        actions = sorted(getattr(profile, "states", {})) if category == "__native__" and profile else ACTION_CATEGORIES.get(category, ())
+        for action in actions:
             self.action_name.addItem(action, action)
         self._describe_fallback()
 
