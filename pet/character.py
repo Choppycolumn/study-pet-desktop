@@ -66,6 +66,12 @@ class CharacterPackage:
     bubble_lines: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
     metadata: Mapping[str, Any] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
+    version: str | int | float | None = None
+    author: str = ""
+    description: str = ""
+    tags: tuple[str, ...] = ()
+    supported_states: tuple[str, ...] = ()
+    fallback_profile: Any = None
 
     @property
     def id(self) -> str:
@@ -78,6 +84,22 @@ class CharacterPackage:
     @property
     def asset(self) -> Path | None:
         return self.preview or self.skin
+
+    @property
+    def display_metadata(self) -> dict[str, Any]:
+        """Return manifest metadata in a stable, UI-friendly shape."""
+        return {
+            **dict(self.metadata),
+            "version": self.version,
+            "author": self.author,
+            "description": self.description,
+            "tags": list(self.tags),
+            "supportedStates": list(self.supported_states),
+            "fallbackProfile": self.fallback_profile,
+        }
+
+    def metadata_summary(self) -> dict[str, Any]:
+        return self.display_metadata
 
     def line(self, state: str, fallback: str) -> str:
         lines = self.bubble_lines.get(str(state or "default").strip().lower())
@@ -100,6 +122,12 @@ class CharacterPackage:
         return {
             "id": self.character_id,
             "displayName": self.display_name,
+            "version": self.version,
+            "author": self.author,
+            "description": self.description,
+            "tags": list(self.tags),
+            "supportedStates": list(self.supported_states),
+            "fallbackProfile": self.fallback_profile,
             "renderer": self.renderer,
             "packageUrl": _path_url(self.manifest or self.root),
             "manifestUrl": _path_url(self.manifest),
@@ -118,7 +146,7 @@ class CharacterPackage:
             },
             "stateMap": dict(self.state_map),
             "rig": self.rig.to_dict(),
-            "metadata": dict(self.metadata),
+            "metadata": self.display_metadata,
         }
 
 
@@ -148,6 +176,10 @@ class CharacterPackageLoader:
         display_name = self._required_text(
             data, ("displayName", "name"), character_id, "displayName"
         )
+        version = self._version(data.get("version"))
+        author = self._optional_text(data.get("author"))
+        description = self._optional_text(data.get("description"))
+        tags = self._string_tuple(data.get("tags"), "tags")
         renderer = self._renderer(data)
         skin = self._skin(root, data)
         preview = self._resolve_file(root, data.get("preview"), "preview", warn_missing=False)
@@ -163,6 +195,20 @@ class CharacterPackageLoader:
         } if isinstance(raw_map, Mapping) else {}
         metadata = data.get("metadata") if isinstance(data.get("metadata"), Mapping) else {}
         bubble_lines = self._bubble_lines(data.get("bubbleLines", data.get("bubble_lines")))
+        raw_supported_states = data.get("supportedStates", data.get("supported_states"))
+        supported_states = self._string_tuple(
+            raw_supported_states, "supportedStates", normalize=True
+        ) if raw_supported_states is not None else tuple(states)
+        fallback_profile = data.get("fallbackProfile", data.get("fallback_profile"))
+        if fallback_profile is not None and not isinstance(
+            fallback_profile, (str, int, float, bool, Mapping, list, tuple)
+        ):
+            self._warn("fallbackProfile must be a JSON value; it was ignored")
+            fallback_profile = None
+        elif isinstance(fallback_profile, Mapping):
+            fallback_profile = dict(fallback_profile)
+        elif isinstance(fallback_profile, (list, tuple)):
+            fallback_profile = list(fallback_profile)
         if renderer in {"webview", "webview_skin_rig"}:
             for label, path in (("skin", skin), ("atlas", atlas), ("rig", rig_path), ("animations", animations_path)):
                 if path is None:
@@ -171,6 +217,12 @@ class CharacterPackageLoader:
             character_id=character_id,
             display_name=display_name,
             root=root.resolve(),
+            version=version,
+            author=author,
+            description=description,
+            tags=tags,
+            supported_states=supported_states,
+            fallback_profile=fallback_profile,
             renderer=renderer,
             skin=skin,
             preview=preview,
@@ -185,6 +237,45 @@ class CharacterPackageLoader:
             metadata=dict(metadata),
             warnings=tuple(self._messages),
         )
+
+    def _version(self, raw: Any) -> str | int | float | None:
+        if raw is None:
+            return None
+        if isinstance(raw, bool) or not isinstance(raw, (str, int, float)):
+            self._warn("version must be a string or number; it was ignored")
+            return None
+        if isinstance(raw, str):
+            return raw.strip() or None
+        return raw
+
+    @staticmethod
+    def _optional_text(raw: Any) -> str:
+        return str(raw).strip() if raw is not None else ""
+
+    def _string_tuple(
+        self,
+        raw: Any,
+        label: str,
+        *,
+        normalize: bool = False,
+    ) -> tuple[str, ...]:
+        if raw is None:
+            return ()
+        if isinstance(raw, str):
+            values = [raw]
+        elif isinstance(raw, (list, tuple, set)):
+            values = raw
+        else:
+            self._warn(f"{label} must be a string or array; it was ignored")
+            return ()
+        result: list[str] = []
+        for value in values:
+            text = str(value).strip()
+            if normalize:
+                text = text.lower()
+            if text and text not in result:
+                result.append(text)
+        return tuple(result)
 
     def _warn(self, message: str) -> None:
         self._messages.append(message)

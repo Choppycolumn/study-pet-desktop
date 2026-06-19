@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pet.character import CharacterPackageLoader  # noqa: E402
+from pet.character_registry import CharacterRegistry  # noqa: E402
 
 
 def _object(path: Path) -> Mapping[str, Any]:
@@ -111,14 +112,25 @@ def validate(package_root: Path) -> dict[str, Any]:
     expressive = {name for name in animated_targets if any(token in name for token in ("eye", "mouth", "arm"))}
     if not expressive:
         raise ValueError("at least one eye, mouth, or arm node must be animated")
+    action_report = CharacterRegistry(
+        package_root.parent, auto_reload=False
+    ).action_report(package)
     return {
         "id": package.character_id,
+        "displayName": package.display_name,
+        "metadata": package.display_metadata,
         "renderer": package.renderer,
         "skin": f"{width}x{height}",
         "parts": len(part_names),
         "nodes": len(node_ids),
         "clips": sorted(str(name) for name in clips),
         "expressiveTargets": sorted(expressive),
+        "actionSupport": {
+            "supported": action_report["supported"],
+            "missing": action_report["missing"],
+            "fallbacks": action_report["fallbacks"],
+            "unresolved": action_report["unresolved"],
+        },
     }
 
 

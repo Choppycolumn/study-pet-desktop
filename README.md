@@ -46,6 +46,17 @@ python app.py
 
 强提醒不会锁屏、杀进程、拦截系统快捷键，也不会移除托盘退出入口。
 
+## 互动菜单与养成
+
+- 鼠标移入桌宠：显示“摸头、玩耍、喂食、学习、设置”快捷按钮，移开后自动隐藏。
+- 单击桌宠：打开摸头、陪伴学习、学习打卡、玩耍、喂食、送礼物、对话和状态菜单。
+- 右键桌宠：打开学习模式、暂停提醒、今日统计、角色切换、动作预览、设置、同步和退出菜单。
+- 拖动桌宠：依次播放 `drag_start / dragging / drag_end`，不会被菜单阻断。
+
+每个角色独立保存 `mood`、`affection`、`hunger`、`energy` 和 `discipline`，范围均为 0-100。喂食使饥饿度 -20、心情 +5、亲密度 +2；玩耍使心情 +8、精力 -5、亲密度 +3；送礼使亲密度 +5、心情 +10；摸头使亲密度 +1、心情 +2。每累计 30 分钟学习增加一单位心情、亲密度和自律值；娱乐超时降低 3 点心情和 2 点自律值。
+
+养成状态和事件保存在 `%APPDATA%\ExamPlannerPet\pet.sqlite` 的 `pet_status` 与 `pet_interaction_events` 表。设置页“自律与互动”标签可以关闭养成、悬停菜单或互动气泡，并调整三种互动冷却和暂停提醒时长。
+
 ## 动画架构
 
 `character.json` 的 `renderer` 决定渲染后端：
@@ -80,15 +91,22 @@ default_pet/
 
 ```json
 {
+  "version": "1.0.0",
   "id": "my_pet",
+  "name": "我的桌宠",
   "displayName": "我的桌宠",
+  "author": "local",
+  "description": "用于学习陪伴的原创角色",
+  "tags": ["study", "cute"],
   "renderer": "webview_skin_rig",
   "preview": "preview.png",
   "skin": "skin.png",
   "atlas": "atlas.json",
   "rig": "rig.json",
   "animations": "animations.json",
-  "defaultAnimation": "idle",
+  "defaultAnimation": "idle_normal",
+  "supportedStates": ["idle_normal", "study_normal", "warning_soft", "happy"],
+  "fallbackProfile": "standard",
   "stateMap": {
     "tool": "study",
     "strong": "angry",
@@ -142,9 +160,10 @@ default_pet/
 
 ```json
 {
+  "defaultFps": 60,
   "timeUnit": "ms",
   "clips": {
-    "idle": {
+    "idle_normal": {
       "duration": 2000,
       "loop": true,
       "tracks": [
@@ -163,7 +182,33 @@ default_pet/
 }
 ```
 
-内置状态包括 `idle/study/entertainment/warning/angry/happy/sleep/drag/click/error`。缺少 clip 时按 `character.json.stateFallbacks` 回退，最终使用 `idle`。
+成熟动作协议分为 `idle`、`study`、`discipline`、`emotion`、`interaction`、`routine`、`system`、`easter_egg`、`care` 和 `menu` 十类。完整目录定义在 `pet/action_library.py`；角色不必实现全部动作，解析器会沿多级 fallback 查找，最终回到 `idle_normal`。例如 `study_typing → study_normal → idle_normal`、`warning_strong → warning_medium → warning_soft → idle_normal`、`pet_head → shy → happy → click → idle_normal`。
+
+| 分类 | 标准动作 |
+| --- | --- |
+| idle | `idle_normal`, `idle_blink`, `idle_breathe`, `idle_look_left/right`, `idle_stretch`, `idle_sit/lie/bored`, `idle_random_01..03` |
+| study | `study_normal/focus/reading/typing/writing/thinking/encourage/complete`, `ask_study`, `study_together`, `check_progress`, `praise_study` |
+| discipline | `warning_soft/medium/strong`, `angry_soft/strong`, `disappointed`, `stare`, `block_screen`, `force_study`, `forgive` |
+| emotion | `happy`, `excited`, `proud`, `shy`, `sad`, `wronged`, `angry`, `surprised`, `confused`, `tired`, `sleepy`, `calm` |
+| interaction | `click`, `double_click`, `pet_head`, `drag_start/dragging/drag_end`, `greet`, `wave`, `nod`, `shake_head`, `poke`, `hide`, `return_back` |
+| routine | `wake_up`, `sleep`, `nap`, `good_morning/afternoon/evening`, `late_night_warning`, `break_time`, `back_to_work` |
+| system | `syncing`, `sync_success/error`, `network_error`, `config_error`, `loading`, `update_available`, `achievement` |
+| easter_egg | `dance`, `cheer`, `celebrate`, `roll`, `hide_and_peek`, `special_01..03` |
+| care | `feed`, `eating`, `full`, `hungry`, `play/playing`, `gift`, `love`, `pet_head`, `shy`, `spoiled`, `lonely`, `want_attention` |
+| menu | `menu_open`, `menu_hover`, `menu_select`, `settings_open` |
+
+`PetBehaviorScheduler` 维护“主状态 + 临时动作”：随机待机、点击、拖动、同步和互动完成后自动回到当前学习、提醒或待机主状态。默认待机间隔可在设置页调整。
+
+## 成熟角色美术清单
+
+建议把以下内容拆成独立透明部件，并为旋转留出透明边距：
+
+- 身体：头、脸、前发、后发、身体、左右手臂、左右手、左右腿和左右脚。
+- 表情：正常眼、闭眼、生气眼、星星眼、困眼、泪眼；普通嘴、微笑嘴、生气嘴、张嘴、睡觉嘴；腮红、汗滴和眼泪。
+- 道具：书、笔、本子、电脑、提醒牌、闹钟、爱心、感叹号、Zzz、星星和成就徽章。
+- 姿势：指向手、握拳手、张开手、挥手、趴下、坐下、睡觉、生气和学习姿势。
+
+先让 `idle_normal`、`idle_blink`、`study_normal`、`warning_soft`、`warning_strong`、`angry_soft`、`happy`、`sleep`、`click`、`dragging` 十个核心动作可用，再补随机待机、互动和彩蛋。默认角色已经原生提供这些核心动作，并额外提供呼吸、左看、右看、伸懒腰、喂食、玩耍、礼物、摸头、菜单、同步错误、学习完成和庆祝动作；随机调度会避免连续重复同一个待机动作。
 
 ## 从正面照制作 skin.png
 
@@ -179,13 +224,23 @@ default_pet/
 
 ## 导入与切换角色
 
-把完整目录放到 `characters/<角色ID>/`，重启后即可在托盘“切换角色”或设置页选择。也可直接设置：
+把完整目录放到 `characters/<角色ID>/`；打包版放到 `StudyPet/_internal/characters/<角色ID>/`。打开设置页“角色与动作”，点击“重载角色”即可看到合法角色和非法包错误。角色页显示预览图、renderer、版本、作者、支持/缺失动作数，并可按分类选择动作；点击“预览动作”会显示请求动作实际使用的 fallback。
+
+点击“应用角色”或保存设置后立即切换，选择会写入配置并在重启后恢复。角色缺失时自动回退 `default_pet`。也可直接设置：
 
 ```json
 { "characterId": "my_pet" }
 ```
 
 猫娘、小白、小鸡毛和穹妹目前保留独立角色包入口；仓库不附带第三方版权美术。放入你有权使用的素材后，可以继续使用兼容渲染器，也可以迁移为上述 Skin Rig 格式。
+
+## 添加动作
+
+1. 在 `animations.json.clips` 添加动作名、时长、循环方式和轨道。
+2. 把动作名加入 `character.json.supportedStates`；应用状态映射可写入 `stateMap`。
+3. 缺少动作时可在 `stateFallbacks` 指定角色级回退，公共规则位于 `pet/action_library.py`。
+4. 运行校验器，确保轨道目标都存在于 `rig.json`，关键帧时间有效。
+5. 在设置页预览动作，确认一次性动作结束后回到主状态。
 
 ## 角色包与动画验收
 
@@ -197,7 +252,7 @@ $env:QTWEBENGINE_CHROMIUM_FLAGS = "--disable-gpu"
 python tools/webview_smoke_test.py
 ```
 
-校验器检查 PNG 尺寸、atlas 边界、rig 父子与部件引用、动画轨道目标和表情/手臂关键帧。WebView 测试真实加载 Qt WebEngine，并切换 `idle/study/warning/angry`。
+校验器检查 PNG 尺寸、atlas 边界、rig 父子与部件引用、动画轨道目标和表情/手臂关键帧。WebView 测试真实加载 Qt WebEngine，并依次切换默认角色的十个核心成熟动作。
 
 ## 浏览器域名识别
 

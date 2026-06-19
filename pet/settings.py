@@ -57,6 +57,13 @@ class PetSettings:
     reminder_cooldown_minutes: int = 20
     emergency_pause_minutes: int = 30
     strong_mode_enabled: bool = True
+    care_enabled: bool = True
+    hover_menu_enabled: bool = True
+    interaction_bubbles_enabled: bool = True
+    feed_cooldown_minutes: int = 5
+    play_cooldown_minutes: int = 10
+    gift_cooldown_minutes: int = 30
+    random_idle_interval_seconds: int = 25
     reminder_tone: str = "strict"
     study_domains: list[str] = field(default_factory=lambda: ["chat.openai.com", "github.com", "wikipedia.org"])
     entertainment_domains: list[str] = field(default_factory=lambda: ["bilibili.com", "youtube.com", "douyin.com"])
@@ -124,6 +131,17 @@ def load_settings(config_path: Path | None = None) -> PetSettings:
     settings.reminder_cooldown_minutes = _int(raw.get("reminderCooldownMinutes"), settings.reminder_cooldown_minutes)
     settings.emergency_pause_minutes = _int(raw.get("emergencyPauseMinutes"), settings.emergency_pause_minutes)
     settings.strong_mode_enabled = _bool(raw.get("strongModeEnabled"), settings.strong_mode_enabled)
+    settings.care_enabled = _bool(raw.get("careEnabled"), settings.care_enabled)
+    settings.hover_menu_enabled = _bool(raw.get("hoverMenuEnabled"), settings.hover_menu_enabled)
+    settings.interaction_bubbles_enabled = _bool(
+        raw.get("interactionBubblesEnabled"), settings.interaction_bubbles_enabled
+    )
+    settings.feed_cooldown_minutes = _int(raw.get("feedCooldownMinutes"), settings.feed_cooldown_minutes, 0)
+    settings.play_cooldown_minutes = _int(raw.get("playCooldownMinutes"), settings.play_cooldown_minutes, 0)
+    settings.gift_cooldown_minutes = _int(raw.get("giftCooldownMinutes"), settings.gift_cooldown_minutes, 0)
+    settings.random_idle_interval_seconds = _int(
+        raw.get("randomIdleIntervalSeconds"), settings.random_idle_interval_seconds, 5
+    )
     settings.reminder_tone = str(raw.get("reminderTone", settings.reminder_tone)).strip() or settings.reminder_tone
     settings.study_domains = _list(raw.get("studyDomains"), settings.study_domains)
     settings.entertainment_domains = _list(raw.get("entertainmentDomains"), settings.entertainment_domains)
@@ -164,6 +182,13 @@ def save_settings(settings: PetSettings, config_path: Path | None = None) -> Non
         "reminderCooldownMinutes": settings.reminder_cooldown_minutes,
         "emergencyPauseMinutes": settings.emergency_pause_minutes,
         "strongModeEnabled": settings.strong_mode_enabled,
+        "careEnabled": settings.care_enabled,
+        "hoverMenuEnabled": settings.hover_menu_enabled,
+        "interactionBubblesEnabled": settings.interaction_bubbles_enabled,
+        "feedCooldownMinutes": settings.feed_cooldown_minutes,
+        "playCooldownMinutes": settings.play_cooldown_minutes,
+        "giftCooldownMinutes": settings.gift_cooldown_minutes,
+        "randomIdleIntervalSeconds": settings.random_idle_interval_seconds,
         "reminderTone": settings.reminder_tone,
         "studyDomains": settings.study_domains,
         "entertainmentDomains": settings.entertainment_domains,

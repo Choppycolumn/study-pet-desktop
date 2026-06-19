@@ -2,8 +2,316 @@
   "version": 1,
   "timeUnit": "ms",
   "rotationUnit": "degrees",
+  "defaultFps": 24,
   "defaultEasing": "easeInOutSine",
+  "defaultState": "idle_normal",
+  "fallbacks": {
+    "idle": "idle_normal",
+    "idle_blink": "idle_normal",
+    "idle_breathe": "idle_normal",
+    "idle_look_left": "idle_normal",
+    "idle_look_right": "idle_normal",
+    "idle_stretch": "idle_normal",
+    "study": "study_normal",
+    "study_normal": "idle_normal",
+    "warning": "warning_soft",
+    "warning_soft": "idle_normal",
+    "warning_strong": "warning_soft",
+    "angry": "angry_soft",
+    "angry_soft": "warning_soft",
+    "happy": "idle_normal",
+    "sleep": "idle_normal",
+    "drag": "dragging",
+    "dragging": "idle_normal",
+    "click": "idle_normal",
+    "feed": "happy",
+    "play": "happy",
+    "gift": "happy",
+    "pet_head": "happy",
+    "menu_open": "idle_normal",
+    "error": "sync_error",
+    "sync_error": "warning_strong",
+    "study_complete": "celebrate",
+    "celebrate": "happy"
+  },
   "clips": {
+    "idle_normal": {
+      "duration": 2400,
+      "loop": true,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 1200, "value": -331 }, { "time": 2400, "value": -335 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": -1 }, { "time": 1200, "value": 1 }, { "time": 2400, "value": -1 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 2 }, { "time": 1200, "value": -1 }, { "time": 2400, "value": 2 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -2 }, { "time": 1200, "value": 1 }, { "time": 2400, "value": -2 }] }
+      ]
+    },
+    "idle_blink": {
+      "duration": 480,
+      "loop": false,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "head", "property": "position.y", "keyframes": [{ "time": 0, "value": -195 }, { "time": 220, "value": -192 }, { "time": 480, "value": -195 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 140, "value": false }, { "time": 300, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 140, "value": true }, { "time": 300, "value": false }] },
+        { "target": "mouth_normal", "property": "scale.x", "keyframes": [{ "time": 0, "value": 1 }, { "time": 220, "value": 0.88 }, { "time": 480, "value": 1 }] }
+      ]
+    },
+    "idle_breathe": {
+      "duration": 2600,
+      "loop": true,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.5 }, { "time": 1300, "value": 0.515 }, { "time": 2600, "value": 0.5 }] },
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 1300, "value": -332 }, { "time": 2600, "value": -335 }] },
+        { "target": "head", "property": "position.y", "keyframes": [{ "time": 0, "value": -195 }, { "time": 1300, "value": -198 }, { "time": 2600, "value": -195 }] }
+      ]
+    },
+    "idle_look_left": {
+      "duration": 1500,
+      "loop": false,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 420, "value": -8 }, { "time": 1080, "value": -8 }, { "time": 1500, "value": 0 }] },
+        { "target": "eyes_open", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 420, "value": -5 }, { "time": 1080, "value": -5 }, { "time": 1500, "value": 0 }] }
+      ]
+    },
+    "idle_look_right": {
+      "duration": 1500,
+      "loop": false,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 420, "value": 8 }, { "time": 1080, "value": 8 }, { "time": 1500, "value": 0 }] },
+        { "target": "eyes_open", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 420, "value": 5 }, { "time": 1080, "value": 5 }, { "time": 1500, "value": 0 }] }
+      ]
+    },
+    "idle_stretch": {
+      "duration": 1800,
+      "loop": false,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 700, "value": -350 }, { "time": 1250, "value": -350 }, { "time": 1800, "value": -335 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 700, "value": -5 }, { "time": 1250, "value": 5 }, { "time": 1800, "value": 0 }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 700, "value": -78 }, { "time": 1250, "value": -70 }, { "time": 1800, "value": 0 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 700, "value": 78 }, { "time": 1250, "value": 70 }, { "time": 1800, "value": 0 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 620, "value": false }, { "time": 1400, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 620, "value": true }, { "time": 1400, "value": false }] }
+      ]
+    },
+    "study_normal": {
+      "duration": 2200,
+      "loop": true,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 1100, "value": 1 }, { "time": 2200, "value": 0 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 5 }, { "time": 1100, "value": 7 }, { "time": 2200, "value": 5 }] },
+        { "target": "eyes_open", "property": "position.y", "keyframes": [{ "time": 0, "value": 9 }, { "time": 1100, "value": 11 }, { "time": 2200, "value": 9 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -38 }, { "time": 1100, "value": -34 }, { "time": 2200, "value": -38 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 38 }, { "time": 1100, "value": 34 }, { "time": 2200, "value": 38 }] },
+        { "target": "prop_book", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "prop_book", "property": "position.y", "keyframes": [{ "time": 0, "value": 72 }, { "time": 1100, "value": 68 }, { "time": 2200, "value": 72 }] }
+      ]
+    },
+    "warning_soft": {
+      "duration": 1200,
+      "loop": true,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 300, "value": -3 }, { "time": 600, "value": 3 }, { "time": 1200, "value": 0 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": -3 }, { "time": 600, "value": 3 }, { "time": 1200, "value": -3 }] },
+        { "target": "eyes_open", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.9 }, { "time": 600, "value": 0.76 }, { "time": 1200, "value": 0.9 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_angry", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -45 }, { "time": 600, "value": -60 }, { "time": 1200, "value": -45 }] },
+        { "target": "effect_warning", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "effect_warning", "property": "scale.x", "keyframes": [{ "time": 0, "value": 0.65 }, { "time": 600, "value": 0.9 }, { "time": 1200, "value": 0.65 }] }
+      ]
+    },
+    "warning_strong": {
+      "duration": 720,
+      "loop": true,
+      "fallback": "warning_soft",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 90, "value": -9 }, { "time": 180, "value": 9 }, { "time": 270, "value": -7 }, { "time": 360, "value": 7 }, { "time": 720, "value": 0 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": -7 }, { "time": 360, "value": 7 }, { "time": 720, "value": -7 }] },
+        { "target": "eyes_open", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.68 }, { "time": 360, "value": 0.5 }, { "time": 720, "value": 0.68 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_angry", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 35 }, { "time": 360, "value": 62 }, { "time": 720, "value": 35 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -65 }, { "time": 360, "value": -84 }, { "time": 720, "value": -65 }] },
+        { "target": "effect_warning", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "effect_warning", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.8 }, { "time": 360, "value": 1.25 }, { "time": 720, "value": 0.8 }] }
+      ]
+    },
+    "angry_soft": {
+      "duration": 1100,
+      "loop": true,
+      "fallback": "warning_soft",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "rotation", "keyframes": [{ "time": 0, "value": -2 }, { "time": 550, "value": 2 }, { "time": 1100, "value": -2 }] },
+        { "target": "head", "property": "position.y", "keyframes": [{ "time": 0, "value": -195 }, { "time": 550, "value": -189 }, { "time": 1100, "value": -195 }] },
+        { "target": "eyes_open", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.74 }, { "time": 550, "value": 0.62 }, { "time": 1100, "value": 0.74 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_angry", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 38 }, { "time": 550, "value": 48 }, { "time": 1100, "value": 38 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -38 }, { "time": 550, "value": -48 }, { "time": 1100, "value": -38 }] }
+      ]
+    },
+    "dragging": {
+      "duration": 700,
+      "loop": true,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "rotation", "keyframes": [{ "time": 0, "value": -6 }, { "time": 350, "value": 6 }, { "time": 700, "value": -6 }] },
+        { "target": "body", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.92 }, { "time": 350, "value": 1.04 }, { "time": 700, "value": 0.92 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 9 }, { "time": 350, "value": -9 }, { "time": 700, "value": 9 }] },
+        { "target": "eyes_open", "property": "scale.y", "keyframes": [{ "time": 0, "value": 1.08 }, { "time": 350, "value": 0.88 }, { "time": 700, "value": 1.08 }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 14 }, { "time": 350, "value": 30 }, { "time": 700, "value": 14 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -14 }, { "time": 350, "value": -30 }, { "time": 700, "value": -14 }] }
+      ]
+    },
+    "feed": {
+      "duration": 1000,
+      "loop": false,
+      "fallback": "happy",
+      "resetPose": true,
+      "tracks": [
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 350, "value": 8 }, { "time": 700, "value": -4 }, { "time": 1000, "value": 0 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 480, "value": false }, { "time": 700, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 480, "value": true }, { "time": 700, "value": false }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 300, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 300, "value": true }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -5 }, { "time": 300, "value": -105 }, { "time": 650, "value": -75 }, { "time": 1000, "value": -5 }] },
+        { "target": "effect_heart", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 520, "value": true }, { "time": 920, "value": false }] }
+      ]
+    },
+    "play": {
+      "duration": 1400,
+      "loop": true,
+      "fallback": "happy",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 350, "value": -352 }, { "time": 700, "value": -335 }, { "time": 1050, "value": -348 }, { "time": 1400, "value": -335 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": -8 }, { "time": 700, "value": 8 }, { "time": 1400, "value": -8 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -15 }, { "time": 350, "value": 70 }, { "time": 700, "value": -15 }, { "time": 1050, "value": 50 }, { "time": 1400, "value": -15 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 15 }, { "time": 350, "value": -50 }, { "time": 700, "value": 15 }, { "time": 1050, "value": -70 }, { "time": 1400, "value": 15 }] }
+      ]
+    },
+    "gift": {
+      "duration": 1300,
+      "loop": false,
+      "fallback": "happy",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "scale.x", "keyframes": [{ "time": 0, "value": 1 }, { "time": 350, "value": 1.08 }, { "time": 700, "value": 0.96 }, { "time": 1300, "value": 1 }] },
+        { "target": "head", "property": "position.y", "keyframes": [{ "time": 0, "value": -195 }, { "time": 350, "value": -207 }, { "time": 700, "value": -195 }, { "time": 1300, "value": -201 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 5 }, { "time": 500, "value": 62 }, { "time": 1300, "value": 5 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -5 }, { "time": 500, "value": -62 }, { "time": 1300, "value": -5 }] },
+        { "target": "effect_heart", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 1150, "value": false }] },
+        { "target": "effect_heart", "property": "scale.x", "keyframes": [{ "time": 0, "value": 0.2 }, { "time": 500, "value": 1.2 }, { "time": 900, "value": 0.75 }, { "time": 1300, "value": 1 }] }
+      ]
+    },
+    "pet_head": {
+      "duration": 900,
+      "loop": false,
+      "fallback": "happy",
+      "resetPose": true,
+      "tracks": [
+        { "target": "head", "property": "position.y", "keyframes": [{ "time": 0, "value": -195 }, { "time": 240, "value": -186 }, { "time": 520, "value": -202 }, { "time": 900, "value": -195 }] },
+        { "target": "head", "property": "scale.y", "keyframes": [{ "time": 0, "value": 0.5 }, { "time": 240, "value": 0.44 }, { "time": 520, "value": 0.53 }, { "time": 900, "value": 0.5 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 760, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 760, "value": false }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 760, "value": true }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 760, "value": false }] },
+        { "target": "effect_heart", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 760, "value": false }] },
+        { "target": "effect_heart", "property": "position.y", "keyframes": [{ "time": 0, "value": -105 }, { "time": 760, "value": -145 }] }
+      ]
+    },
+    "menu_open": {
+      "duration": 650,
+      "loop": false,
+      "fallback": "idle_normal",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 260, "value": -5 }, { "time": 650, "value": 0 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 260, "value": -10 }, { "time": 650, "value": -4 }] },
+        { "target": "eyes_open", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 260, "value": -5 }, { "time": 650, "value": -2 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -5 }, { "time": 260, "value": -52 }, { "time": 650, "value": -18 }] },
+        { "target": "mouth_normal", "property": "scale.x", "keyframes": [{ "time": 0, "value": 1 }, { "time": 260, "value": 0.82 }, { "time": 650, "value": 1 }] }
+      ]
+    },
+    "sync_error": {
+      "duration": 950,
+      "loop": false,
+      "fallback": "warning_strong",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.x", "keyframes": [{ "time": 0, "value": 0 }, { "time": 100, "value": -11 }, { "time": 200, "value": 11 }, { "time": 300, "value": -8 }, { "time": 400, "value": 8 }, { "time": 650, "value": 0 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 220, "value": -12 }, { "time": 440, "value": 12 }, { "time": 760, "value": 0 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 260, "value": false }, { "time": 500, "value": true }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 260, "value": true }, { "time": 500, "value": false }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 820, "value": true }] },
+        { "target": "mouth_angry", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 820, "value": false }] },
+        { "target": "effect_warning", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 820, "value": false }] },
+        { "target": "effect_warning", "property": "rotation", "keyframes": [{ "time": 0, "value": -15 }, { "time": 400, "value": 15 }, { "time": 820, "value": 0 }] }
+      ]
+    },
+    "study_complete": {
+      "duration": 1500,
+      "loop": false,
+      "fallback": "celebrate",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 500, "value": -350 }, { "time": 900, "value": -335 }, { "time": 1500, "value": -342 }] },
+        { "target": "head", "property": "rotation", "keyframes": [{ "time": 0, "value": 6 }, { "time": 500, "value": -7 }, { "time": 1000, "value": 7 }, { "time": 1500, "value": 0 }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -35 }, { "time": 700, "value": 72 }, { "time": 1500, "value": 20 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 35 }, { "time": 700, "value": -72 }, { "time": 1500, "value": -20 }] },
+        { "target": "prop_book", "property": "visible", "keyframes": [{ "time": 0, "value": true }, { "time": 600, "value": false }] },
+        { "target": "effect_heart", "property": "visible", "keyframes": [{ "time": 0, "value": false }, { "time": 600, "value": true }, { "time": 1400, "value": false }] }
+      ]
+    },
+    "celebrate": {
+      "duration": 1800,
+      "loop": false,
+      "fallback": "happy",
+      "resetPose": true,
+      "tracks": [
+        { "target": "body", "property": "position.y", "keyframes": [{ "time": 0, "value": -335 }, { "time": 300, "value": -370 }, { "time": 600, "value": -335 }, { "time": 900, "value": -362 }, { "time": 1200, "value": -335 }, { "time": 1800, "value": -335 }] },
+        { "target": "body", "property": "rotation", "keyframes": [{ "time": 0, "value": 0 }, { "time": 450, "value": -5 }, { "time": 900, "value": 5 }, { "time": 1350, "value": -3 }, { "time": 1800, "value": 0 }] },
+        { "target": "eyes_open", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "eyes_closed", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "mouth_normal", "property": "visible", "keyframes": [{ "time": 0, "value": false }] },
+        { "target": "mouth_smile", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "left_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": 15 }, { "time": 450, "value": 88 }, { "time": 900, "value": 30 }, { "time": 1350, "value": 76 }, { "time": 1800, "value": 15 }] },
+        { "target": "right_upper_arm", "property": "rotation", "keyframes": [{ "time": 0, "value": -15 }, { "time": 450, "value": -88 }, { "time": 900, "value": -30 }, { "time": 1350, "value": -76 }, { "time": 1800, "value": -15 }] },
+        { "target": "effect_heart", "property": "visible", "keyframes": [{ "time": 0, "value": true }] },
+        { "target": "effect_heart", "property": "position.y", "keyframes": [{ "time": 0, "value": -90 }, { "time": 900, "value": -145 }, { "time": 1800, "value": -90 }] }
+      ]
+    },
     "idle": {
       "duration": 2400,
       "loop": true,
